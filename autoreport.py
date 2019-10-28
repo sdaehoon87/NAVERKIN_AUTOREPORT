@@ -2,15 +2,15 @@ from selenium import webdriver
 import pymysql
 import time
 
-con = pymysql.connect(host='121.143.107.49',
+con = pymysql.connect(host='210.180.40.164',
                       user='songking',
                       password='3779aa',
                       db='kinauto',
                       charset='utf8')
 cur = con.cursor()  # 디비 커서
 
-kin_url = 'https://kin.naver.com/qna/detail.nhn?d1id=4&dirId=4010503&docId=329909070&qb=7ZaH7IK066Gg&enc=utf8&section=kin&rank=1&search_sort=0&spq=0'
-
+kin_url = 'https://kin.naver.com/qna/detail.nhn?d1id=4&dirId=4010506&docId=337604773&qb=66y07KeB7J6Q64yA7Lac&enc=utf8&section=kin&rank=1&search_sort=0&spq=0'
+num = str(18)
 
 kin_url = kin_url.split('&')
 kin_url =(kin_url[0] +'&' +kin_url[1] + '&' + kin_url[2])
@@ -22,7 +22,10 @@ for i in cur.fetchall():
     idchlist.append(i[0])
 print(idchlist)
 
-cur.execute("SELECT id,pw FROM idlist WHERE NOT id IN ({seq})".format(seq=','.join(['%s']*len(idchlist))), idchlist)
+try:
+    cur.execute("SELECT id,pw FROM idlist WHERE NOT id IN ({seq})".format(seq=','.join(['%s']*len(idchlist))), idchlist)
+except:
+    cur.execute("SELECT id,pw FROM idlist")
 idlist = cur.fetchall()
 
 driver = webdriver.Chrome('./chromedriver.exe')
@@ -33,9 +36,9 @@ for i in idlist:
     driver.execute_script("document.getElementsByName('pw')[0].value=\'" + i[1] + "\'")
     driver.find_element_by_xpath('//*[@id="frmNIDLogin"]/fieldset/input').click()
     time.sleep(0.5)
-    driver.get('https://kin.naver.com/qna/detail.nhn?d1id=4&dirId=4010503&docId=329909070&qb=7ZaH7IK066Gg&enc=utf8&section=kin&rank=1&search_sort=0&spq=0')
-    driver.find_element_by_xpath('//*[@id="answerMenuButton4"]').click()
-    driver.find_element_by_xpath('//*[@id="optReport4"]').click()
+    driver.get(kin_url)
+    driver.find_element_by_xpath('//*[@id="answerMenuButton{}"]'.format(num)).click()
+    driver.find_element_by_xpath('//*[@id="optReport{}"]'.format(num)).click()
     print(i[0])
     time.sleep(0.5)
     driver.switch_to.window(driver.window_handles[-1])
