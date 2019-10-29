@@ -2,15 +2,15 @@ from selenium import webdriver
 import pymysql
 import time
 
-con = pymysql.connect(host='210.180.40.164',
+con = pymysql.connect(host='localhost',
                       user='songking',
                       password='3779aa',
                       db='kinauto',
                       charset='utf8')
 cur = con.cursor()  # 디비 커서
 
-kin_url = 'https://kin.naver.com/qna/detail.nhn?d1id=4&dirId=4010506&docId=337604773&qb=66y07KeB7J6Q64yA7Lac&enc=utf8&section=kin&rank=1&search_sort=0&spq=0'
-num = str(18)
+kin_url = 'https://kin.naver.com/qna/detail.nhn?d1id=4&dirId=4010506&docId=337605299&qb=66y07KeB7J6Q64yA7Lac&enc=utf8&section=kin&rank=4&search_sort=0&spq=0'
+num = str(7)
 
 kin_url = kin_url.split('&')
 kin_url =(kin_url[0] +'&' +kin_url[1] + '&' + kin_url[2])
@@ -36,10 +36,21 @@ for i in idlist:
     driver.execute_script("document.getElementsByName('pw')[0].value=\'" + i[1] + "\'")
     driver.find_element_by_xpath('//*[@id="frmNIDLogin"]/fieldset/input').click()
     time.sleep(0.5)
+    print(i[0])
+    naverurl = driver.current_url
+    if 'https://nid.naver.com/nidlogin.login' in naverurl:
+        print('id, pw틀림')
+        continue
+    if 'https://nid.naver.com/user2/help/idRelease' in naverurl:
+        print('대량생성 아이디')
+        continue
+    if 'https://nid.naver.com/user2/help/idSafetyRelease' in naverurl:
+        print('삭제 이용 제한 아이디')
+        continue
+
     driver.get(kin_url)
     driver.find_element_by_xpath('//*[@id="answerMenuButton{}"]'.format(num)).click()
     driver.find_element_by_xpath('//*[@id="optReport{}"]'.format(num)).click()
-    print(i[0])
     time.sleep(0.5)
     driver.switch_to.window(driver.window_handles[-1])
     driver.find_element_by_xpath('//*[@id="reason0"]').click()
